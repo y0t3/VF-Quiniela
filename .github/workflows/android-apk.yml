@@ -29,6 +29,20 @@ jobs:
         env:
           CI: '1'
         run: npx expo prebuild --platform android --clean
+      - name: Create simple VF launcher icon
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick
+          mkdir -p /tmp/vf-icon
+          convert -size 1024x1024 xc:'#321066' -gravity center -fill white -font DejaVu-Sans-Bold -pointsize 390 -annotate +0+15 'VF' /tmp/vf-icon/vf.png
+          for spec in 'mipmap-mdpi 48' 'mipmap-hdpi 72' 'mipmap-xhdpi 96' 'mipmap-xxhdpi 144' 'mipmap-xxxhdpi 192'; do
+            set -- $spec
+            dir=$1
+            size=$2
+            mkdir -p android/app/src/main/res/$dir
+            convert /tmp/vf-icon/vf.png -resize ${size}x${size} android/app/src/main/res/$dir/ic_launcher.png
+            cp android/app/src/main/res/$dir/ic_launcher.png android/app/src/main/res/$dir/ic_launcher_round.png
+          done
       - name: Build standalone release APK
         working-directory: android
         run: ./gradlew assembleRelease
