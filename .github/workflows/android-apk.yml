@@ -21,6 +21,10 @@ jobs:
         run: npm install
       - name: Generate frozen VF data module
         run: node scripts/build-frozen-data.mjs
+      - name: Apply accessibility UI controls
+        run: node scripts/apply-ui-prefs.mjs
+      - name: Decode VF launcher icon
+        run: base64 --decode assets/vf-icon.jpg.b64 > assets/vf-icon.jpg
       - name: TypeScript parity check
         run: npx tsc --noEmit
       - name: Generate Android project
