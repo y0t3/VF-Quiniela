@@ -23,12 +23,16 @@ jobs:
         run: node scripts/build-frozen-data.mjs
       - name: Apply accessibility UI controls
         run: node scripts/apply-ui-prefs.mjs
-      - name: Decode VF launcher icon
-        run: base64 --decode assets/vf-icon.jpg.b64 > assets/vf-icon.jpg
+      - name: Verify launcher icon
+        run: |
+          test -f assets/vf-icon.png
+          file assets/vf-icon.png
       - name: TypeScript parity check
         run: npx tsc --noEmit
       - name: Generate Android project
-        run: npx expo prebuild --platform android --clean --non-interactive
+        env:
+          CI: '1'
+        run: npx expo prebuild --platform android --clean
       - name: Build standalone release APK
         working-directory: android
         run: ./gradlew assembleRelease
