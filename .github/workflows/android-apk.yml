@@ -21,12 +21,12 @@ jobs:
         run: npm install
       - name: Generate Android project
         run: npx expo prebuild --platform android --clean --non-interactive
-      - name: Build debug APK
+      - name: Build standalone release APK
         working-directory: android
-        run: ./gradlew assembleDebug
-      - name: Upload APK
+        run: ./gradlew assembleRelease
+      - name: Upload standalone APK
         uses: actions/upload-artifact@v4
         with:
-          name: VF-Quiniela-APK
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          name: VF-Quiniela-APK-Standalone
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
