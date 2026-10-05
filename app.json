@@ -5,9 +5,15 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
+    "icon": "./assets/vf-icon.jpg",
     "android": {
       "package": "com.y0t3.vfquiniela",
-      "versionCode": 1
+      "versionCode": 1,
+      "icon": "./assets/vf-icon.jpg",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/vf-icon.jpg",
+        "backgroundColor": "#09070d"
+      }
     }
   }
 }
