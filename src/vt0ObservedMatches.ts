@@ -21,13 +21,7 @@ export const OBSERVED_MA29_122: VTObservedMatchSheet = {
   sequence: 122,
   status: 'partial',
   matchesByTurn: {
-    // Confirmado por explicación del usuario: la primera franja está vacía
-    // porque en Previa no coincidió ningún resultado con formaciones de arriba.
     Previa: [],
-
-    // Lectura de los bloques remarcados inferiores de la foto MA29/122.
-    // Se conserva exactamente lo visible; todavía falta enlazar cada valor
-    // con las celdas concretas de su recorrido superior.
     Primera: ['54', '983'],
     Matutina: ['389', '86', '463'],
     Vespertina: ['26', '62', '31'],
@@ -38,7 +32,29 @@ export const OBSERVED_MA29_122: VTObservedMatchSheet = {
     'Los resaltados superiores se realizan después del sorteo y muestran dónde se formó por roce cada coincidencia inferior.',
     'Previa vacía significa cero coincidencias observadas para ese turno; no significa ausencia de recorridos geométricos posibles en la matriz.',
     'La transcripción de coincidencias está separada de la geometría hasta confirmar las celdas exactas de cada recorrido.',
+    'MA29 contiene 13 coincidencias observadas: 6 VT2, 6 VT3 y 1 VT4.',
+    'Distribución por turno: Previa 0, Primera 2, Matutina 3, Vespertina 3, Nocturna 5.',
+    'Vespertina contiene 26 y 62 en la misma franja. Esto es evidencia histórica compatible con la regla de lectura directa/inversa del mismo contacto, aunque la foto por sí sola todavía no demuestra que ambos provengan exactamente del mismo par de celdas.',
+    '22 demuestra que VT2 debe admitir dos celdas contiguas con la misma cifra; no se debe deduplicar un camino por valor de dígito.',
+    '7942 confirma que las coincidencias de cuatro cifras existen en la práctica y deben conservarse como clase VT4 independiente.',
   ],
 };
+
+export type VTObservedLengthSummary = {
+  total: number;
+  VT2: string[];
+  VT3: string[];
+  VT4: string[];
+};
+
+export function summarizeObservedLengths(sheet: VTObservedMatchSheet): VTObservedLengthSummary {
+  const all = Object.values(sheet.matchesByTurn).flat();
+  return {
+    total: all.length,
+    VT2: all.filter(x => x.length === 2),
+    VT3: all.filter(x => x.length === 3),
+    VT4: all.filter(x => x.length === 4),
+  };
+}
 
 export const OBSERVED_MATCH_SHEETS: VTObservedMatchSheet[] = [OBSERVED_MA29_122];
