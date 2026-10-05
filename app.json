@@ -1,0 +1,13 @@
+{
+  "expo": {
+    "name": "VF Quiniela",
+    "slug": "vf-quiniela",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "android": {
+      "package": "com.y0t3.vfquiniela",
+      "versionCode": 1
+    }
+  }
+}
