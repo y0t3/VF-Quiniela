@@ -4,8 +4,10 @@ export const FUENTE='https://vivitusuerte.com/api/juegos/cabezasDiarias';
 const empty=():Tabla=>Object.fromEntries(JURS.map(j=>[j,'----']));
 const norm=(s:string)=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const aliases:Record<string,string>={ciudad:'Ciudad',capital:'Ciudad',nacional:'Ciudad',provincia:'Provincia',buenosaires:'Provincia',cordoba:'Córdoba',santafe:'Santa Fé',entrerios:'Entre Ríos',montevideo:'Montevideo'};
-// IDs reales devueltos por /api/juegos/cabezasDiarias. VF usa las seis primeras jurisdicciones.
-const jurId:Record<string,string>={'1':'Ciudad','2':'Provincia','3':'Córdoba','4':'Santa Fé','5':'Entre Ríos','6':'Montevideo'};
+// IDs reales de Viví tu Suerte para las seis jurisdicciones que usa VF.
+// El orden de los IDs de la API NO coincide con el orden visual de la web.
+// 1 Ciudad, 2 Provincia, 3 Santa Fé, 4 Montevideo, 5 Entre Ríos, 6 Mendoza, 7 Córdoba.
+const jurId:Record<string,string>={'1':'Ciudad','2':'Provincia','3':'Santa Fé','4':'Montevideo','5':'Entre Ríos','7':'Córdoba'};
 const momento:Record<string,string>={momento_5:'Previa',momento_1:'Primera',momento_2:'Matutino',momento_3:'Vespertino',momento_4:'Nocturno'};
 const num=(v:any)=>{if(v===null||v===undefined||v===''||v==='----')return '----';const m=String(v).match(/\d+/);return m?m[0].slice(-4).padStart(4,'0'):'----'};
 function jurName(x:any):string|undefined{const vals=[x?.jurisdiccion,x?.provincia,x?.loteria,x?.nombre,x?.juego,x?.descripcion,x?.jurisdiccionNombre,x?.provinciaNombre,x?.nombre_juego];for(const v of vals){const k=norm(typeof v==='object'?(v?.nombre||v?.descripcion||''):v);if(aliases[k])return aliases[k];for(const [a,j] of Object.entries(aliases))if(k.includes(a))return j;}}
