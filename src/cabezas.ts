@@ -1,33 +1,16 @@
 import {JURS,TURNOS,Tabla} from './engine';
-
 export type CabezasDia=Record<string,Tabla>;
 export const FUENTE='https://vivitusuerte.com/api/juegos/cabezasDiarias';
-
 const empty=():Tabla=>Object.fromEntries(JURS.map(j=>[j,'----']));
 const norm=(s:string)=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const aliases:Record<string,string>={ciudad:'Ciudad',capital:'Ciudad',nacional:'Ciudad',provincia:'Provincia',buenosaires:'Provincia',cordoba:'Córdoba',santafe:'Santa Fé',entrerios:'Entre Ríos',montevideo:'Montevideo'};
 const momento:Record<string,string>={momento_5:'Previa',momento_1:'Primera',momento_2:'Matutino',momento_3:'Vespertino',momento_4:'Nocturno'};
 const num=(v:any)=>{if(v===null||v===undefined||v===''||v==='----')return '----';const m=String(v).match(/\d+/);return m?m[0].slice(-4).padStart(4,'0'):'----'};
-function jurName(x:any):string|undefined{const vals=[x?.jurisdiccion,x?.provincia,x?.loteria,x?.nombre,x?.juego,x?.descripcion,x?.jurisdiccionNombre,x?.provinciaNombre];for(const v of vals){const k=norm(typeof v==='object'?(v?.nombre||v?.descripcion||''):v);if(aliases[k])return aliases[k];for(const [a,j] of Object.entries(aliases))if(k.includes(a))return j;}}
-function turnName(x:any):string|undefined{for(const [k,t] of Object.entries(momento))if(x?.[k]!==undefined)return t;const vals=[x?.turno,x?.sorteo,x?.nombreTurno,x?.turnoNombre,x?.descripcionTurno];for(const v of vals){const k=norm(typeof v==='object'?(v?.nombre||v?.descripcion||''):v);if(k.includes('previa'))return 'Previa';if(k.includes('primera'))return 'Primera';if(k.includes('matut'))return 'Matutino';if(k.includes('vespert'))return 'Vespertino';if(k.includes('noct'))return 'Nocturno';}}
-function headValue(x:any){return num(x?.cabeza??x?.numero??x?.nro??x?.primerPremio??x?.primero??x?.resultado??x?.valor);}
-function valueOf(v:any){return num(typeof v==='object'?(v?.numero??v?.cabeza??v?.resultado??v?.valor??v?.primero):v);}
-function walk(x:any,out:CabezasDia){
- if(Array.isArray(x)){x.forEach(v=>walk(v,out));return;} if(!x||typeof x!=='object')return;
- const j=jurName(x),t=turnName(x),v=headValue(x);if(j&&t&&v!=='----')out[t][j]=v;
- if(j){
-   for(const [mk,tt] of Object.entries(momento)){const n=valueOf(x[mk]);if(n!=='----')out[tt][j]=n;}
-   for(const [k,val] of Object.entries(x)){const nk=norm(k);let tt:string|undefined;if(nk.includes('previa'))tt='Previa';else if(nk.includes('primera'))tt='Primera';else if(nk.includes('matut'))tt='Matutino';else if(nk.includes('vespert'))tt='Vespertino';else if(nk.includes('noct'))tt='Nocturno';if(tt){const n=valueOf(val);if(n!=='----')out[tt][j]=n;}}
- }
- Object.values(x).forEach(v=>{if(v&&typeof v==='object')walk(v,out)});
-}
-export async function descargarCabezas(fecha?:string):Promise<CabezasDia>{
- const f=fecha||new Date().toISOString().slice(0,10);
- // El endpoint que usamos para el histórico acepta ISO yyyy-mm-dd. La web puede mostrar dd-mm-yyyy, pero eso es sólo presentación.
- const url=`${FUENTE}?fecha=${encodeURIComponent(f)}&_=${Date.now()}`;
- const r=await fetch(url,{headers:{Accept:'application/json','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`Viví tu Suerte respondió ${r.status}`);
- const raw=await r.text();let data:any;try{data=JSON.parse(raw)}catch{throw new Error('La API de cabezas no devolvió JSON válido.');}
- const out:CabezasDia=Object.fromEntries(TURNOS.map(t=>[t,empty()]));walk(data,out);
- const count=TURNOS.reduce((n,t)=>n+JURS.filter(j=>out[t][j]!=='----').length,0);if(!count)throw new Error(`La API respondió, pero no pude reconocer cabezas para ${f}.`);return out;
-}
+function jurName(x:any):string|undefined{const vals=[x?.jurisdiccion,x?.provincia,x?.loteria,x?.nombre,x?.juego,x?.descripcion,x?.jurisdiccionNombre,x?.provinciaNombre,x?.nombre_juego];for(const v of vals){const k=norm(typeof v==='object'?(v?.nombre||v?.descripcion||''):v);if(aliases[k])return aliases[k];for(const [a,j] of Object.entries(aliases))if(k.includes(a))return j;}}
+function turnName(x:any):string|undefined{const vals=[x?.turno,x?.sorteo,x?.nombreTurno,x?.turnoNombre,x?.descripcionTurno,x?.momento];for(const v of vals){const k=norm(typeof v==='object'?(v?.nombre||v?.descripcion||''):v);if(k.includes('previa'))return 'Previa';if(k.includes('primera'))return 'Primera';if(k.includes('matut'))return 'Matutino';if(k.includes('vespert'))return 'Vespertino';if(k.includes('noct'))return 'Nocturno';}}
+function headValue(x:any){return num(x?.cabeza??x?.numero??x?.nro??x?.primerPremio??x?.primero??x?.resultado??x?.valor??x?.numero_1);}
+function valueOf(v:any){return num(typeof v==='object'?(v?.numero??v?.cabeza??v?.resultado??v?.valor??v?.primero??v?.numero_1):v);}
+function walk(x:any,out:CabezasDia){if(Array.isArray(x)){x.forEach(v=>walk(v,out));return;}if(!x||typeof x!=='object')return;const j=jurName(x),t=turnName(x),v=headValue(x);if(j&&t&&v!=='----')out[t][j]=v;if(j){for(const [mk,tt] of Object.entries(momento)){const n=valueOf(x[mk]);if(n!=='----')out[tt][j]=n;}for(const [k,val] of Object.entries(x)){const nk=norm(k);let tt:string|undefined;if(nk.includes('previa'))tt='Previa';else if(nk.includes('primera'))tt='Primera';else if(nk.includes('matut'))tt='Matutino';else if(nk.includes('vespert'))tt='Vespertino';else if(nk.includes('noct'))tt='Nocturno';if(tt){const n=valueOf(val);if(n!=='----')out[tt][j]=n;}}}Object.values(x).forEach(v=>{if(v&&typeof v==='object')walk(v,out)});}
+function shape(data:any){try{if(Array.isArray(data))return `array(${data.length}) first=${data.length?JSON.stringify(data[0]).slice(0,700):'vacío'}`;if(data&&typeof data==='object')return `keys=${Object.keys(data).join(',')} sample=${JSON.stringify(data).slice(0,700)}`;return `${typeof data}: ${String(data).slice(0,700)}`;}catch{return 'respuesta no inspeccionable';}}
+export async function descargarCabezas(fecha?:string):Promise<CabezasDia>{const f=fecha||new Date().toISOString().slice(0,10);const url=`${FUENTE}?fecha=${encodeURIComponent(f)}&_=${Date.now()}`;const r=await fetch(url,{headers:{Accept:'application/json','Cache-Control':'no-cache'}});if(!r.ok)throw new Error(`Viví tu Suerte respondió ${r.status}`);const raw=await r.text();let data:any;try{data=JSON.parse(raw)}catch{throw new Error(`La API no devolvió JSON. Inicio: ${raw.slice(0,500)}`);}const out:CabezasDia=Object.fromEntries(TURNOS.map(t=>[t,empty()]));walk(data,out);const count=TURNOS.reduce((n,t)=>n+JURS.filter(j=>out[t][j]!=='----').length,0);if(!count)throw new Error(`DIAGNÓSTICO API ${f}\n${shape(data)}`);return out;}
 export function tablaTurno(data:CabezasDia|undefined,t:string):Tabla{return data?.[t]||empty();}
