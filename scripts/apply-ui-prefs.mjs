@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+const p='App.tsx'; let s=fs.readFileSync(p,'utf8');
+if(s.includes("const FONT='vf_font_scale_v1'")){console.log('UI prefs already applied');process.exit(0)}
+s=s.replace("const KEY='vf_cabezas_v3',LOG='vf_predicciones_v1',AUTO='vf_cabezas_auto_v3';","const KEY='vf_cabezas_v3',LOG='vf_predicciones_v1',AUTO='vf_cabezas_auto_v3',FONT='vf_font_scale_v1';");
+s=s.replace("[updated,setUpdated]=useState('');","[updated,setUpdated]=useState(''),[fontScale,setFontScale]=useState(1.15);");
+s=s.replace("useEffect(()=>{AsyncStorage.getItem(KEY).then(x=>x&&setTabs(JSON.parse(x))).catch(()=>{})},[]);","useEffect(()=>{AsyncStorage.getItem(KEY).then(x=>x&&setTabs(JSON.parse(x))).catch(()=>{});AsyncStorage.getItem(FONT).then(x=>x&&setFontScale(Number(x)||1.15)).catch(()=>{})},[]);\n const changeFont=(v:number)=>{const n=Math.max(.9,Math.min(1.45,v));setFontScale(n);AsyncStorage.setItem(FONT,String(n)).catch(()=>{})};\n const scaled=(st:any)=>{const f=StyleSheet.flatten(st)||{};const base=f.fontSize||14;return [st,{fontSize:Math.round(base*fontScale),lineHeight:f.lineHeight?Math.round(f.lineHeight*fontScale):undefined}]};\n const ZText=(p:any)=>React.createElement(Text,{...p,style:scaled(p.style)},p.children);");
+// Replace rendered Text elements with scalable text, leaving the imported native Text intact.
+s=s.replace(/<Text\b/g,'<ZText').replace(/<\/Text>/g,'</ZText>');
+// Add compact accessibility controls beside the tabs.
+s=s.replace("</Pressable></View><ScrollView contentContainerStyle={s.page}>","</Pressable><View style={s.fontCtl}><Pressable onPress={()=>changeFont(fontScale-.1)} style={s.fontBtn}><ZText style={s.fontTxt}>A−</ZText></Pressable><Pressable onPress={()=>changeFont(1.15)} style={s.fontBtn}><ZText style={s.fontTxt}>A</ZText></Pressable><Pressable onPress={()=>changeFont(fontScale+.1)} style={s.fontBtn}><ZText style={s.fontTxt}>A+</ZText></Pressable></View></View><ScrollView contentContainerStyle={s.page}>");
+s=s.replace("navTxt:{color:'#fff',fontWeight:'900',textAlign:'center'},page:","navTxt:{color:'#fff',fontWeight:'900',textAlign:'center'},fontCtl:{flexDirection:'row',alignItems:'center',gap:3,marginLeft:2},fontBtn:{minWidth:34,minHeight:40,alignItems:'center',justifyContent:'center',borderRadius:9,backgroundColor:'#24172f'},fontTxt:{color:'#fff',fontWeight:'900',fontSize:13},page:");
+fs.writeFileSync(p,s);console.log('Applied persistent font-size controls');
