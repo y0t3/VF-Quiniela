@@ -23,6 +23,8 @@ const METHOD_NOTES = [
   'La repetición de una cifra dispersa no constituye respaldo.',
   'VT2, VT3 y VT4 se registran por separado.',
   'VT4 puede cerrar un cuadrado: la última celda puede tocar la primera.',
+  'Los resaltados son evidencia POSTERIOR al sorteo: el padre marca arriba el recorrido que formó un número que ya salió y está anotado debajo de la línea.',
+  'Por lo tanto, resaltado no significa predicción previa; resultado inferior + recorrido superior forman juntos el ejemplo histórico etiquetado.',
 ];
 
 function pendingSheet(
@@ -44,10 +46,20 @@ function pendingSheet(
 // Cronología identificada visualmente por la anotación del margen inferior derecho.
 // Fechas: semana que cruza septiembre/octubre de 2026; domingo 04/10 no tiene sorteo.
 // Varias fotos contienen dos hojas superpuestas: se registran por HOJA/DÍA, no por foto.
-export const REAL_SHEET_TUE_29 = pendingSheet(
-  'real-2026-09-29','Hoja real — martes 29','Martes','2026-09-29',122,
-  'foto 1000574961 — hoja superior (marca MA 29 / 122)',
-);
+export const REAL_SHEET_TUE_29:VTRealSheet = {
+  ...pendingSheet(
+    'real-2026-09-29','Hoja real — martes 29','Martes','2026-09-29',122,
+    'foto individual MA 29 / 122, rotada para lectura',
+  ),
+  status:'partial',
+  notes:[
+    ...METHOD_NOTES,
+    'La foto confirma cinco columnas de trabajo y una línea horizontal que separa la matriz superior de los resultados reales inferiores.',
+    'Se observan múltiples trazados amarillos/rosas continuos en la zona superior; deben asociarse a sus resultados inferiores antes de registrarlos como positives.',
+    'Hay superposición fuerte de resaltador y tinta en varias cifras. No se cargan todavía cells ni positives dudosos para evitar enseñar geometrías falsas al calibrador.',
+    'En la zona inferior se distinguen varios grupos numéricos, pero algunos prefijos/anotaciones de turno siguen siendo ambiguos; se conservan como evidencia visual y no como ground truth automático.',
+  ],
+};
 export const REAL_SHEET_WED_30 = pendingSheet(
   'real-2026-09-30','Hoja real — miércoles 30','Miércoles','2026-09-30',123,
   'fotos 1000574961 y 1000574960 — hoja marcada MI 30 / 123',
