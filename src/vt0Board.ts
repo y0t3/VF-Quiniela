@@ -23,11 +23,13 @@ export type VTCell = {
 };
 export type VTBoard = VTCell[][];
 
+// +11 del método manuscrito = sumar 1 A CADA CIFRA, módulo 10.
+// Ej.: 48 -> 59, 90 -> 01, 9798 -> 0809.
+// NO significa sumar once al número completo.
 export function plus11(head:string):string {
-  const n=Number(head);
-  if(!Number.isInteger(n)) throw new Error(`Cabeza inválida: ${head}`);
-  const width=Math.max(2,head.length); const modulus=10**width;
-  return String((n+11)%modulus).padStart(width,'0');
+  const clean=String(head).trim();
+  if(!/^\d+$/.test(clean)) throw new Error(`Cabeza inválida: ${head}`);
+  return [...clean].map(d=>String((Number(d)+1)%10)).join('');
 }
 
 // YYYY-MM-DD se interpreta a mediodía UTC para evitar corrimientos de fecha.
@@ -41,8 +43,6 @@ export function previousCalendarDate(date:string):string {
 
 // Fecha de la nocturna fuente para construir PREVIA.
 // Lunes -> sábado. Martes..sábado -> día calendario anterior.
-// Si en el futuro hubiera otro día sin sorteo, resolverPreviousNocturna permite
-// saltarlo también usando el histórico real disponible.
 export function expectedPreviousDrawDate(targetDate:string):string {
   let d=previousCalendarDate(targetDate);
   while(isSunday(d)) d=previousCalendarDate(d);
